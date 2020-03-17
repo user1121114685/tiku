@@ -139,6 +139,7 @@ func main() {
 					Txts = strings.Replace(Txts, " E.", ";;E.", -1) // 替换字符串
 					Txts = strings.Replace(Txts, " F.", ";;F.", -1) // 替换字符串
 					Txts = strings.Replace(Txts, " G.", ";;G.", -1) // 替换字符串
+					LineExcelString = strconv.Itoa(LineExcel)
 					newExcel.SetCellValue("Sheet1", "B"+LineExcelString, Txts)
 					println("选项   在ECXEL的：" + LineExcelString + " 行 " + Txts)
 					LineExcel++
