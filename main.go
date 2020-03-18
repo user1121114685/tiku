@@ -20,7 +20,7 @@ func main() {
 	newExcel.SetCellValue("Sheet1", "B1", "OptionList") // 创建首行db关键字 选项
 	newExcel.SetCellValue("Sheet1", "C1", "Result")     // 创建首行db关键字 答案
 	newExcel.SetCellValue("Sheet1", "D1", "Explain")    // 创建首行db关键字 解析
-	newExcel.SetCellValue("Sheet1", "E1", "Type")       // 创建首行db关键字 题型 1 判断  2 单选 3 多选 4 填空 5 简答
+	newExcel.SetCellValue("Sheet1", "E1", "Type")       // 创建首行db关键字 题型 pd 判断  dx 单选 dd 多选 tk 填空 jd 简答
 	// 逐行扫描txt，将他们写入excel
 	file, err := os.Open("./导入文本.txt")
 	if err != nil {
@@ -93,10 +93,10 @@ func main() {
 					newExcel.SetCellValue("Sheet1", "B"+LineExcelString, "本题答案为空")
 
 				}
-				if strings.Contains(Txts, "[解析]") == false {
+				if !strings.Contains(Txts, "[解析]") {
 
 					newExcel.SetCellValue("Sheet1", "A"+LineExcelString, Txts) // 题目
-					newExcel.SetCellValue("Sheet1", "E"+LineExcelString, "4")  //题目类型
+					newExcel.SetCellValue("Sheet1", "E"+LineExcelString, "tk") //题目类型
 					println("填空题在ECXEL的：" + LineExcelString + " 行 " + Txts)
 
 					LineExcel++
@@ -252,10 +252,10 @@ func main() {
 							println(err.Error())
 						}
 						if utf8.RuneCountInString(resultReg) > 1 { // 答案长度超过1 则为多选
-							newExcel.SetCellValue("Sheet1", "E"+LineExcelString, "3") //题目类型  多选
+							newExcel.SetCellValue("Sheet1", "E"+LineExcelString, "dd") //题目类型  多选
 						} else {
 
-							newExcel.SetCellValue("Sheet1", "E"+LineExcelString, "2") //题目类型  单选
+							newExcel.SetCellValue("Sheet1", "E"+LineExcelString, "dx") //题目类型  单选
 
 						}
 						println("本题选择题 答案：" + LineExcelString + " 行 " + resultReg)
@@ -269,7 +269,7 @@ func main() {
 						LineExcel++
 
 					}
-					if strings.Contains(Txts, "[解析]") == false {
+					if !strings.Contains(Txts, "[解析]") { // 取反 ，如果不包含解析 就执行下面的命令
 						newExcel.SetCellValue("Sheet1", "A"+LineExcelString, Txts) // 题目不换行
 						Answer = ""                                                // 遇到题目就清空答案
 						println("选择题在ECXEL的：" + LineExcelString + " 行 " + Txts)
@@ -323,9 +323,9 @@ func main() {
 				if err != nil {
 					println(err.Error())
 				}
-				if strings.Contains(Txts, "[解析]") == false {
+				if !strings.Contains(Txts, "[解析]") {
 					newExcel.SetCellValue("Sheet1", "A"+LineExcelString, Txts)
-					newExcel.SetCellValue("Sheet1", "E"+LineExcelString, "1") //题目类型 判断
+					newExcel.SetCellValue("Sheet1", "E"+LineExcelString, "pd") //题目类型 判断
 					println("判断题在ECXEL的：" + LineExcelString + " 行 " + Txts)
 				}
 
@@ -369,7 +369,7 @@ func main() {
 						println(err.Error())
 					}
 					newExcel.SetCellValue("Sheet1", "A"+LineExcelString, Txts)
-					newExcel.SetCellValue("Sheet1", "E"+LineExcelString, "5") //题目类型 简答
+					newExcel.SetCellValue("Sheet1", "E"+LineExcelString, "jd") //题目类型 简答
 					println("简答题在ECXEL的：" + LineExcelString + " 行 " + Txts)
 					LineExcel++
 				} else {
