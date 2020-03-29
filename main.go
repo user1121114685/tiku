@@ -70,18 +70,7 @@ func main() {
 					println("解析  在ECXEL的：" + LineExcelString + " 行 " + Txts)
 					LineExcel++
 				}
-				// 录入单行答案
-				if strings.Contains(Txts, "[答案]") { // 包含关键字 退出循环
-					LineExcel-- // 切换到上一行
-					LineExcelString = strconv.Itoa(LineExcel)
-					Answer, err = gregex.ReplaceString(`\[答案\]`, "", Txts) // 参数含义 需要替换的字符  替换后的字符 目标处理文件
-					if err != nil {
-						println(err.Error())
-					}
-					newExcel.SetCellValue("Sheet1", "B"+LineExcelString, Answer)
-					println("答案  在ECXEL的：" + LineExcelString + " 行 " + Answer)
-					LineExcel++
-				}
+
 				// 提取题目中的答案
 				match, _ := gregex.MatchString(`\(\(.*\)\)`, Txts) // 正则表达式中的* 表示前一个字符出现任意次，与我们所谓的*匹配任意字符不同  参见 https://zh.wikipedia.org/wiki/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F
 				if match != nil {
@@ -94,15 +83,7 @@ func main() {
 					}
 
 					newExcel.SetCellValue("Sheet1", "B"+LineExcelString, Answer) // 写入填空题答案
-					result, err = gregex.ReplaceString(`\(`, `\(`, result)
-					if err != nil {
-						println(err.Error())
-					}
-					result, err = gregex.ReplaceString(`\)`, `\)`, result)
-					if err != nil {
-						println(err.Error())
-					}
-					Txts, err = gregex.ReplaceString(result, "", Txts) // 参数含义 需要替换的字符  替换后的字符 目标处理文件
+					Txts, err = gregex.ReplaceString(result, "", Txts)           // 参数含义 需要替换的字符  替换后的字符 目标处理文件
 					if err != nil {
 						println(err.Error())
 					}
@@ -112,7 +93,7 @@ func main() {
 					newExcel.SetCellValue("Sheet1", "B"+LineExcelString, "本题答案为空")
 
 				}
-				if !strings.Contains(Txts, "[解析]") && !strings.Contains(Txts, "[答案]") {
+				if !strings.Contains(Txts, "[解析]") {
 
 					newExcel.SetCellValue("Sheet1", "A"+LineExcelString, Txts) // 题目
 					newExcel.SetCellValue("Sheet1", "E"+LineExcelString, "tk") //题目类型
@@ -266,15 +247,7 @@ func main() {
 						}
 
 						newExcel.SetCellValue("Sheet1", "C"+LineExcelString, resultReg) // 写入选择题答案
-						result, err = gregex.ReplaceString(`\(`, `\(`, result)
-						if err != nil {
-							println(err.Error())
-						}
-						result, err = gregex.ReplaceString(`\)`, `\)`, result)
-						if err != nil {
-							println(err.Error())
-						}
-						Txts, err = gregex.ReplaceString(result, " ", Txts) // 参数含义 需要替换的字符  替换后的字符 目标处理文件
+						Txts, err = gregex.ReplaceString(result, " ", Txts)             // 参数含义 需要替换的字符  替换后的字符 目标处理文件
 						if err != nil {
 							println(err.Error())
 						}
@@ -296,30 +269,7 @@ func main() {
 						LineExcel++
 
 					}
-					// 录入单行答案
-					if strings.Contains(Txts, "[答案]") { // 包含关键字 退出循环
-						LineExcel-- // 切换到上一行
-						LineExcelString = strconv.Itoa(LineExcel)
-						Answer, err = gregex.ReplaceString(`\[答案\]`, "", Txts) // 参数含义 需要替换的字符  替换后的字符 目标处理文件
-						if err != nil {
-							println(err.Error())
-						}
-						newExcel.SetCellValue("Sheet1", "C"+LineExcelString, Answer)
-						println("答案  在ECXEL的：" + LineExcelString + " 行 " + Answer)
-						Answer, err = gregex.ReplaceString(" ", "", Answer) // 参数含义 需要替换的字符  替换后的字符 目标处理文件
-						if err != nil {
-							println(err.Error())
-						}
-						if utf8.RuneCountInString(Answer) > 1 { // 答案长度超过1 则为多选
-							newExcel.SetCellValue("Sheet1", "E"+LineExcelString, "dd") //题目类型  多选
-						} else {
-
-							newExcel.SetCellValue("Sheet1", "E"+LineExcelString, "dx") //题目类型  单选
-
-						}
-						LineExcel++
-					}
-					if !strings.Contains(Txts, "[解析]") && !strings.Contains(Txts, "[答案]") {
+					if !strings.Contains(Txts, "[解析]") { // 取反 ，如果不包含解析 就执行下面的命令
 						newExcel.SetCellValue("Sheet1", "A"+LineExcelString, Txts) // 题目不换行
 						Answer = ""                                                // 遇到题目就清空答案
 						println("选择题在ECXEL的：" + LineExcelString + " 行 " + Txts)
@@ -362,42 +312,18 @@ func main() {
 					println("解析  在ECXEL的：" + LineExcelString + " 行 " + Txts)
 
 				}
-				// 录入单行答案
-				if strings.Contains(Txts, "[答案]") { // 包含关键字 退出循环
-					LineExcel-- // 切换到上一行
-					LineExcelString = strconv.Itoa(LineExcel)
-					Answer, err = gregex.ReplaceString(`\[答案\]`, "", Txts) // 参数含义 需要替换的字符  替换后的字符 目标处理文件
-					if err != nil {
-						println(err.Error())
-					}
-					newExcel.SetCellValue("Sheet1", "C"+LineExcelString, Answer)
-					println("答案  在ECXEL的：" + LineExcelString + " 行 " + Answer)
-				}
+
 				if strings.Contains(Txts, "√") {
 					newExcel.SetCellValue("Sheet1", "C"+LineExcelString, "Y")
 				}
 				if strings.Contains(Txts, "×") {
 					newExcel.SetCellValue("Sheet1", "C"+LineExcelString, "N")
 				}
-				// 提取题目中的答案
-				match, _ := gregex.MatchString(`\(.*[√×].*\)`, Txts) // 正则表达式中的* 表示前一个字符出现任意次，与我们所谓的*匹配任意字符不同  参见 https://zh.wikipedia.org/wiki/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F
-				if match != nil {
-					result := match[len(match)-1]
-
-					result, err = gregex.ReplaceString(`\(`, `\(`, result)
-					if err != nil {
-						println(err.Error())
-					}
-					result, err = gregex.ReplaceString(`\)`, `\)`, result)
-					if err != nil {
-						println(err.Error())
-					}
-					Txts, err = gregex.ReplaceString(result, "", Txts) // 参数含义 需要替换的字符  替换后的字符 目标处理文件
-					if err != nil {
-						println(err.Error())
-					}
+				Txts, err = gregex.ReplaceString("√|×", " ", Txts) // 参数含义 需要替换的字符  替换后的字符 目标处理文件
+				if err != nil {
+					println(err.Error())
 				}
-				if !strings.Contains(Txts, "[解析]") && !strings.Contains(Txts, "[答案]") {
+				if !strings.Contains(Txts, "[解析]") {
 					newExcel.SetCellValue("Sheet1", "A"+LineExcelString, Txts)
 					newExcel.SetCellValue("Sheet1", "E"+LineExcelString, "pd") //题目类型 判断
 					println("判断题在ECXEL的：" + LineExcelString + " 行 " + Txts)
