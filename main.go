@@ -9,7 +9,7 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"github.com/360EntSecGroup-Skylar/excelize"
+	excelize "github.com/360EntSecGroup-Skylar/excelize/v2"
 	"github.com/gogf/gf/text/gregex"
 )
 
@@ -21,17 +21,37 @@ func main() {
 	newExcel.SetCellValue("Sheet1", "C1", "Result")     // 创建首行db关键字 答案
 	newExcel.SetCellValue("Sheet1", "D1", "Explain")    // 创建首行db关键字 解析
 	newExcel.SetCellValue("Sheet1", "E1", "Type")       // 创建首行db关键字 题型 pd 判断  dx 单选 dd 多选 tk 填空 jd 简答
+	newExcel.SetCellValue("Sheet1", "F1", "Chapter")    // 章节目录
 	// 逐行扫描txt，将他们写入excel
 	file, err := os.Open("./导入文本.txt")
 	if err != nil {
 		println(err.Error())
+		println("没有在exe目录找到    导入文本.txt")
 	}
 	defer file.Close()
 
+	// 逐行扫描txt，将他们写入excel
+	file1, err := os.Open("./导入文本.txt")
+	if err != nil {
+		println(err.Error())
+		println("没有在exe目录找到    导入文本.txt")
+	}
+	defer file1.Close()
 	LineExcel := 2 // 给excel 赋值正在使用的行号赋值
 	Answer := ""   // 简答题/选择题 答案 变量
-
+	Chapter := ""
 	Scanner := bufio.NewScanner(file)
+	ChapterScanner := bufio.NewScanner(file1)
+	// 遍历章节
+	for ChapterScanner.Scan() {
+		chapterTxts := ChapterScanner.Text()
+		for strings.Contains(chapterTxts, "[章节]") { // 如果字符串里面包含了[章节]，就进行下面的
+			Chapter = "未归纳章节的题目"
+
+		}
+	}
+
+	// 遍历正文
 	for Scanner.Scan() {
 
 		var Txts string
@@ -57,10 +77,7 @@ func main() {
 					break // 退出循环
 
 				}
-				if strings.Contains(Txts, "[填空题]") { // 包含关键字 退出循环
-					break // 退出循环
 
-				}
 				LineExcelString := strconv.Itoa(LineExcel) // 数字类型转字符串类型
 				// 录入解析
 				if strings.Contains(Txts, "[解析]") { // 包含关键字 退出循环
@@ -70,6 +87,24 @@ func main() {
 					println("解析  在ECXEL的：" + LineExcelString + " 行 " + Txts)
 					LineExcel++
 				}
+
+				// 录入章节
+				if strings.Contains(Txts, "[章节]") { // 包含关键字 更新章节标志，否则直接录入章节内容
+					LineExcel-- // 切换到上一行
+					LineExcelString = strconv.Itoa(LineExcel)
+					Chapter, err = gregex.ReplaceString(`\[章节\]`, "", Txts) // 参数含义 需要替换的字符  替换后的字符 目标处理文件
+					if err != nil {
+						println(err.Error())
+					}
+					newExcel.SetCellValue("Sheet1", "F"+LineExcelString, Chapter)
+
+					LineExcel++
+				} else {
+					LineExcel--
+					newExcel.SetCellValue("Sheet1", "F"+LineExcelString, Chapter)
+					LineExcel++
+				}
+
 				// 录入单行答案
 				if strings.Contains(Txts, "[答案]") { // 包含关键字 退出循环
 					LineExcel-- // 切换到上一行
@@ -120,7 +155,6 @@ func main() {
 
 					LineExcel++
 				}
-
 			}
 		}
 
@@ -131,11 +165,6 @@ func main() {
 				Txts = Scanner.Text()
 
 				LineExcelString := strconv.Itoa(LineExcel)
-
-				if strings.Contains(Txts, "[选择题]") { // 包含关键字 退出循环
-					break // 退出循环
-
-				}
 
 				if strings.Contains(Txts, "[判断题]") { // 包含关键字 退出循环
 					break // 退出循环
@@ -296,6 +325,24 @@ func main() {
 						LineExcel++
 
 					}
+
+					// 录入章节
+					if strings.Contains(Txts, "[章节]") { // 包含关键字 更新章节标志，否则直接录入章节内容
+						LineExcel-- // 切换到上一行
+						LineExcelString = strconv.Itoa(LineExcel)
+						Chapter, err = gregex.ReplaceString(`\[章节\]`, "", Txts) // 参数含义 需要替换的字符  替换后的字符 目标处理文件
+						if err != nil {
+							println(err.Error())
+						}
+						newExcel.SetCellValue("Sheet1", "F"+LineExcelString, Chapter)
+
+						LineExcel++
+					} else {
+						LineExcel--
+						newExcel.SetCellValue("Sheet1", "F"+LineExcelString, Chapter)
+						LineExcel++
+					}
+
 					// 录入单行答案
 					if strings.Contains(Txts, "[答案]") { // 包含关键字 退出循环
 						LineExcel-- // 切换到上一行
@@ -341,10 +388,6 @@ func main() {
 
 				}
 
-				if strings.Contains(Txts, "[判断题]") { // 包含关键字 退出循环
-					break // 退出循环
-
-				}
 				if strings.Contains(Txts, "[简答题]") { // 包含关键字 退出循环
 					break // 退出循环
 
@@ -362,6 +405,23 @@ func main() {
 					println("解析  在ECXEL的：" + LineExcelString + " 行 " + Txts)
 
 				}
+				// 录入章节
+				if strings.Contains(Txts, "[章节]") { // 包含关键字 更新章节标志，否则直接录入章节内容
+					LineExcel-- // 切换到上一行
+					LineExcelString = strconv.Itoa(LineExcel)
+					Chapter, err = gregex.ReplaceString(`\[章节\]`, "", Txts) // 参数含义 需要替换的字符  替换后的字符 目标处理文件
+					if err != nil {
+						println(err.Error())
+					}
+					newExcel.SetCellValue("Sheet1", "F"+LineExcelString, Chapter)
+
+					LineExcel++
+				} else {
+					LineExcel--
+					newExcel.SetCellValue("Sheet1", "F"+LineExcelString, Chapter)
+					LineExcel++
+				}
+
 				// 录入单行答案
 				if strings.Contains(Txts, "[答案]") { // 包含关键字 退出循环
 					LineExcel-- // 切换到上一行
@@ -455,6 +515,22 @@ func main() {
 					LineExcel++
 
 				}
+				// 录入章节
+				if strings.Contains(Txts, "[章节]") { // 包含关键字 更新章节标志，否则直接录入章节内容
+					LineExcel-- // 切换到上一行
+					LineExcelString = strconv.Itoa(LineExcel)
+					Chapter, err = gregex.ReplaceString(`\[章节\]`, "", Txts) // 参数含义 需要替换的字符  替换后的字符 目标处理文件
+					if err != nil {
+						println(err.Error())
+					}
+					newExcel.SetCellValue("Sheet1", "F"+LineExcelString, Chapter)
+
+					LineExcel++
+				} else {
+					LineExcel--
+					newExcel.SetCellValue("Sheet1", "F"+LineExcelString, Chapter)
+					LineExcel++
+				}
 
 			}
 			LineExcel++
@@ -462,6 +538,23 @@ func main() {
 
 	}
 
+	j := 1
+
+	for ; j < LineExcel; j++ { //行循环
+		LineExcelString := strconv.Itoa(j)
+		a1Value, err := newExcel.GetCellValue("Sheet1", "A"+LineExcelString) // 循环查找找到空值
+		if err != nil {
+
+			println("获取A1列数据出错：    " + LineExcelString + "行")
+		}
+		if a1Value == "" {
+			err = newExcel.RemoveRow("Sheet1", j)
+			if err != nil {
+
+				println("删除A1列数据出错：    " + LineExcelString + "行")
+			}
+		}
+	}
 	// 获取当前时间
 	t := time.Now() //2019-07-31 13:55:21.3410012 +0800 CST m=+0.006015601
 
@@ -471,6 +564,7 @@ func main() {
 	// 等待用户关闭（输入）
 	println("软件开源地址：https://github.com/user1121114685/tiku")
 	println("执行完毕........请关闭窗口......")
+
 	var exitScan string
 	_, _ = fmt.Scan(&exitScan)
 
